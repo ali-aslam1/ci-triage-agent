@@ -3,58 +3,26 @@ import sys
 import json
 import zipfile
 import io
-import urllib.request
-import urllib.error
 
-def load_env():
-    """Manually parse .env file if it exists to keep script zero-dependency."""
-    env_path = '.env'
-    if os.path.exists(env_path):
-        print(f"Loading environment from {env_path}...")
-        with open(env_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, val = line.split('=', 1)
-                    # Strip quotes if present
-                    val = val.strip().strip("'").strip('"')
-                    os.environ[key.strip()] = val
-    else:
-        print("No .env file found. Falling back to system environment variables.")
-
-def make_request(url, pat):
-    """Make HTTP GET request to GitHub API with Authentication headers."""
-    req = urllib.request.Request(url)
-    req.add_header('Authorization', f'Bearer {pat}')
-    req.add_header('Accept', 'application/vnd.github+json')
-    req.add_header('X-GitHub-Api-Version', '2022-11-28')
-    req.add_header('User-Agent', 'CI-Triage-Agent-Test')
-    
-    try:
-        with urllib.request.urlopen(req) as response:
-            return response.read(), response.info()
-    except urllib.error.HTTPError as e:
-        print(f"HTTP Error: {e.code} - {e.reason}", file=sys.stderr)
-        try:
-            error_body = e.read().decode('utf-8')
-            print(f"Error details: {error_body}", file=sys.stderr)
-        except Exception:
-            pass
-        raise
-    except urllib.error.URLError as e:
-        print(f"URL Error: {e.reason}", file=sys.stderr)
-        raise
+try:
+    from .fetch import load_env, make_request
+except ImportError:
+    from fetch import load_env, make_request
 
 def test_github_api():
     load_env()
     
     pat = os.getenv('GITHUB_PAT')
-    owner = os.getenv('GITHUB_OWNER', 'ali-aslam1')
+    owner = os.getenv('GITHUB_OWNER')
     repos_str = os.getenv('GITHUB_REPOS')
     
     if not pat or pat == 'your_personal_access_token_here':
         print("\n[ERROR] GITHUB_PAT is not configured in .env or system environment.")
         print("Please copy .env.example to .env and put a valid Personal Access Token (PAT).")
+        sys.exit(1)
+        
+    if not owner:
+        print("\n[ERROR] GITHUB_OWNER is not configured.")
         sys.exit(1)
         
     if not repos_str:
