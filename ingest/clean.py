@@ -135,3 +135,20 @@ def clean_log(log_text: str) -> str:
             cleaned_sections.append(f"{header}\n{cleaned_content}")
             
     return "\n\n".join(cleaned_sections)
+
+def extract_changed_files(diff_text: str) -> list[str]:
+    """
+    Parses Git diff headers (diff --git a/filename b/filename) to extract the list of changed files.
+    """
+    changed_files = set()
+    for line in diff_text.splitlines():
+        if line.startswith("diff --git a/"):
+            parts = line.split(" ")
+            if len(parts) >= 4:
+                # parts[2] is 'a/filepath', parts[3] is 'b/filepath'
+                # Strip the leading 'a/' and 'b/' prefixes
+                old_path = parts[2][2:]
+                new_path = parts[3][2:]
+                changed_files.add(old_path)
+                changed_files.add(new_path)
+    return sorted(list(changed_files))

@@ -111,3 +111,4 @@ venv.bak/
 temp_repos/
 *.zip
 *.log
+*.db

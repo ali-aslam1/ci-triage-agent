@@ -6,8 +6,13 @@ import io
 import urllib.request
 import urllib.error
 
-def load_env():
+_env_loaded = False
+
+def load_env(force=False):
     """Manually parse .env file if it exists to keep script zero-dependency."""
+    global _env_loaded
+    if _env_loaded and not force:
+        return
     env_path = '.env'
     if os.path.exists(env_path):
         with open(env_path, 'r', encoding='utf-8') as f:
@@ -18,6 +23,7 @@ def load_env():
                     # Strip quotes if present
                     val = val.strip().strip("'").strip('"')
                     os.environ[key.strip()] = val
+    _env_loaded = True
 
 def make_request(url, pat, accept='application/vnd.github+json'):
     """Make HTTP GET request to GitHub API with Authentication headers."""
@@ -27,14 +33,8 @@ def make_request(url, pat, accept='application/vnd.github+json'):
     req.add_header('X-GitHub-Api-Version', '2022-11-28')
     req.add_header('User-Agent', 'CI-Triage-Agent')
     
-    try:
-        with urllib.request.urlopen(req) as response:
-            return response.read(), response.info()
-    except urllib.error.HTTPError as e:
-        # Re-raise with some context if possible
-        raise e
-    except urllib.error.URLError as e:
-        raise e
+    with urllib.request.urlopen(req) as response:
+        return response.read(), response.info()
 
 def fetch_run(run_id, repo=None, owner=None, pat=None):
     """
@@ -50,8 +50,9 @@ def fetch_run(run_id, repo=None, owner=None, pat=None):
     Returns:
         dict: A dictionary containing:
             - 'log_text': Combined log content from all unzipped log files.
-            - 'commit_sha': The SHA of the triggering commit.
+            - 'commit_sha': The SHA of the triggering commit (or None if not resolved).
             - 'diff': The unified diff of the changes (comparing against PR base or parent commit).
+            - 'conclusion': The GitHub run conclusion or status (e.g. 'failure', 'success').
     """
     load_env()
     
@@ -86,24 +87,16 @@ def fetch_run(run_id, repo=None, owner=None, pat=None):
         if not repos_str:
             raise ValueError("No repository specified and GITHUB_REPOS is not configured in .env.")
         repos = [r.strip() for r in repos_str.split(',') if r.strip()]
+        if not repos:
+            raise ValueError("No repository specified and GITHUB_REPOS is empty in .env.")
         
-        for r in repos:
-            run_url = f"https://api.github.com/repos/{owner}/{r}/actions/runs/{run_id_str}"
-            try:
-                body_bytes, _ = make_request(run_url, pat)
-                run_data = json.loads(body_bytes.decode('utf-8'))
-                resolved_repo = r
-                break  # Successfully found the repository containing the run
-            except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    continue  # Try next repository
-                # For other errors, we can log it but continue searching
-                print(f"Warning: HTTP {e.code} error when searching repo {r}: {e.reason}", file=sys.stderr)
-            except Exception as e:
-                print(f"Warning: Error when searching repo {r}: {e}", file=sys.stderr)
-                
-        if not run_data:
-            raise ValueError(f"Run ID {run_id_str} not found in any of the configured repositories: {repos}")
+        resolved_repo = repos[0]
+        run_url = f"https://api.github.com/repos/{owner}/{resolved_repo}/actions/runs/{run_id_str}"
+        try:
+            body_bytes, _ = make_request(run_url, pat)
+            run_data = json.loads(body_bytes.decode('utf-8'))
+        except Exception as e:
+            raise ValueError(f"Failed to fetch run details for run ID {run_id_str} in fallback repository {owner}/{resolved_repo}: {e}")
             
     # 1. Triggering commit SHA
     commit_sha = run_data.get('head_sha')
@@ -118,8 +111,14 @@ def fetch_run(run_id, repo=None, owner=None, pat=None):
     try:
         log_zip_bytes, _ = make_request(log_url, pat)
         with zipfile.ZipFile(io.BytesIO(log_zip_bytes)) as z:
-            # Sort files so logs follow consistent/sequential order
-            file_names = sorted(z.namelist())
+            # Sort files so logs follow consistent/sequential order (handling numeric prefixes)
+            def _get_sort_key(name):
+                prefix = name.split('_')[0]
+                if prefix.isdigit():
+                    return (int(prefix), name)
+                return (999, name)
+
+            file_names = sorted(z.namelist(), key=_get_sort_key)
             log_parts = []
             for name in file_names:
                 # Only read files, skip directories
@@ -143,14 +142,17 @@ def fetch_run(run_id, repo=None, owner=None, pat=None):
 
     # 3. Determine base and head for comparison diff
     base = None
-    head = commit_sha
+    head = None
+    
+    if commit_sha:
+        head = commit_sha
     
     pull_requests = run_data.get('pull_requests', [])
     if pull_requests:
         # Use pull request base/head
         pr = pull_requests[0]
         base = pr.get('base', {}).get('sha')
-        head = pr.get('head', {}).get('sha') or commit_sha
+        head = pr.get('head', {}).get('sha') or head
     else:
         # Push event or other event. Find parent commit of commit_sha
         if commit_sha:
@@ -179,5 +181,6 @@ def fetch_run(run_id, repo=None, owner=None, pat=None):
     return {
         "log_text": log_text,
         "commit_sha": commit_sha,
-        "diff": diff_text
+        "diff": diff_text,
+        "conclusion": run_data.get('conclusion') or run_data.get('status')
     }
