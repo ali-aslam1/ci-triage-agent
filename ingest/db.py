@@ -5,7 +5,7 @@ from typing import Optional, Dict, List
 
 def init_db(db_path: str = "triage.db"):
     """
-    Initializes the SQLite database and creates the runs table if it doesn't exist.
+    Initializes the SQLite database and creates all required tables if they don't exist.
     """
     conn = sqlite3.connect(db_path)
     try:
@@ -24,9 +24,23 @@ def init_db(db_path: str = "triage.db"):
                 PRIMARY KEY (run_id, repo)
             )
         """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS classifications (
+                run_id TEXT,
+                repo TEXT,
+                category TEXT,
+                confidence REAL,
+                hypothesis TEXT,
+                evidence TEXT,
+                classified_at TIMESTAMP,
+                PRIMARY KEY (run_id, repo),
+                FOREIGN KEY (run_id, repo) REFERENCES runs (run_id, repo) ON DELETE CASCADE
+            )
+        """)
         conn.commit()
     finally:
         conn.close()
+
 
 def save_run(
     run_id: str,
@@ -122,5 +136,71 @@ def list_runs(db_path: str = "triage.db") -> List[Dict]:
                     pass
             runs.append(res)
         return runs
+    finally:
+        conn.close()
+
+def save_classification(
+    run_id: str,
+    repo: str,
+    category: str,
+    confidence: float,
+    hypothesis: str,
+    evidence,  # list/set/tuple or JSON string
+    db_path: str = "triage.db"
+):
+    """
+    Saves or replaces a classification record inside the SQLite classifications table.
+    """
+    if not isinstance(evidence, str):
+        evidence_str = json.dumps(list(evidence))
+    else:
+        evidence_str = evidence
+
+    classified_at_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+    conn = sqlite3.connect(db_path)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT OR REPLACE INTO classifications (
+                run_id, repo, category, confidence, hypothesis, evidence, classified_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            str(run_id),
+            repo,
+            category,
+            float(confidence),
+            hypothesis,
+            evidence_str,
+            classified_at_str
+        ))
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_classification(run_id: str, repo: str, db_path: str = "triage.db") -> Optional[Dict]:
+    """
+    Retrieves a classification by run_id and repo.
+    Returns a dictionary of column names to values, or None if not found.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT run_id, repo, category, confidence, hypothesis, evidence, classified_at
+            FROM classifications
+            WHERE run_id = ? AND repo = ?
+        """, (str(run_id), repo))
+        row = cursor.fetchone()
+        if row:
+            res = dict(row)
+            if res.get("evidence"):
+                try:
+                    res["evidence"] = json.loads(res["evidence"])
+                except Exception:
+                    pass
+            return res
+        return None
     finally:
         conn.close()
