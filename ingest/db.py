@@ -32,6 +32,7 @@ def init_db(db_path: str = "triage.db"):
                 confidence REAL,
                 hypothesis TEXT,
                 evidence TEXT,
+                overridden INTEGER DEFAULT 0,
                 classified_at TIMESTAMP,
                 PRIMARY KEY (run_id, repo),
                 FOREIGN KEY (run_id, repo) REFERENCES runs (run_id, repo) ON DELETE CASCADE
@@ -146,6 +147,7 @@ def save_classification(
     confidence: float,
     hypothesis: str,
     evidence,  # list/set/tuple or JSON string
+    overridden: bool = False,
     db_path: str = "triage.db"
 ):
     """
@@ -163,8 +165,8 @@ def save_classification(
         cursor = conn.cursor()
         cursor.execute("""
             INSERT OR REPLACE INTO classifications (
-                run_id, repo, category, confidence, hypothesis, evidence, classified_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                run_id, repo, category, confidence, hypothesis, evidence, overridden, classified_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             str(run_id),
             repo,
@@ -172,6 +174,7 @@ def save_classification(
             float(confidence),
             hypothesis,
             evidence_str,
+            1 if overridden else 0,
             classified_at_str
         ))
         conn.commit()
@@ -188,7 +191,7 @@ def get_classification(run_id: str, repo: str, db_path: str = "triage.db") -> Op
     try:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT run_id, repo, category, confidence, hypothesis, evidence, classified_at
+            SELECT run_id, repo, category, confidence, hypothesis, evidence, overridden, classified_at
             FROM classifications
             WHERE run_id = ? AND repo = ?
         """, (str(run_id), repo))
@@ -200,6 +203,8 @@ def get_classification(run_id: str, repo: str, db_path: str = "triage.db") -> Op
                     res["evidence"] = json.loads(res["evidence"])
                 except Exception:
                     pass
+            if "overridden" in res:
+                res["overridden"] = bool(res["overridden"])
             return res
         return None
     finally:

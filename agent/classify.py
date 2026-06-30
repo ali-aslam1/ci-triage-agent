@@ -200,21 +200,44 @@ def classify_run(run_id: str, repo: str, db_path: str = "triage.db") -> dict:
     """
     from ingest import get_run, save_classification
     from agent.correlate import correlate_run
+    from agent.flaky import check_flaky_override
 
     run = get_run(run_id, repo, db_path=db_path)
     if not run:
         raise ValueError(f"Run ID {run_id} for repository {repo} not found in database.")
 
+    # 1. Run flaky override check
+    if check_flaky_override(run_id=run_id, repo=repo):
+        result = {
+            "category": "Flaky",
+            "confidence": 1.0,
+            "hypothesis": "Flaky override triggered: adjacent run passed with no relevant diff changes nearby.",
+            "evidence_lines": [],
+            "overridden": True
+        }
+        save_classification(
+            run_id=run_id,
+            repo=repo,
+            category=result["category"],
+            confidence=result["confidence"],
+            hypothesis=result["hypothesis"],
+            evidence=result["evidence_lines"],
+            overridden=True,
+            db_path=db_path
+        )
+        return result
+
     cleaned_log = run["cleaned_log"]
     changed_files = run["changed_files"]
 
-    # 1. Run deterministic correlation logic
+    # 2. Run deterministic correlation logic
     correlation = correlate_run(cleaned_log, changed_files)
 
-    # 2. Call LLM to classify failure
+    # 3. Call LLM to classify failure
     result = classify_log(cleaned_log, correlation)
+    result["overridden"] = False
 
-    # 3. Save result back to classifications table
+    # 4. Save result back to classifications table
     save_classification(
         run_id=run_id,
         repo=repo,
@@ -222,6 +245,7 @@ def classify_run(run_id: str, repo: str, db_path: str = "triage.db") -> dict:
         confidence=result["confidence"],
         hypothesis=result["hypothesis"],
         evidence=result["evidence_lines"],
+        overridden=False,
         db_path=db_path
     )
 

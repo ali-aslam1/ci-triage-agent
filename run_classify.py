@@ -54,6 +54,7 @@ def main():
         print(f"Category:   {result['category']}")
         print(f"Confidence: {result['confidence']:.2f}")
         print(f"Hypothesis: {result['hypothesis']}")
+        print(f"Overridden: {result.get('overridden', False)}")
         print("Evidence lines:")
         for line in result['evidence_lines']:
             print(f"  - {line}")
