@@ -33,6 +33,8 @@ def init_db(db_path: str = "triage.db"):
                 hypothesis TEXT,
                 evidence TEXT,
                 overridden INTEGER DEFAULT 0,
+                initial_category TEXT,
+                initial_confidence REAL,
                 classified_at TIMESTAMP,
                 PRIMARY KEY (run_id, repo),
                 FOREIGN KEY (run_id, repo) REFERENCES runs (run_id, repo) ON DELETE CASCADE
@@ -148,6 +150,8 @@ def save_classification(
     hypothesis: str,
     evidence,  # list/set/tuple or JSON string
     overridden: bool = False,
+    initial_category: Optional[str] = None,
+    initial_confidence: Optional[float] = None,
     db_path: str = "triage.db"
 ):
     """
@@ -165,8 +169,9 @@ def save_classification(
         cursor = conn.cursor()
         cursor.execute("""
             INSERT OR REPLACE INTO classifications (
-                run_id, repo, category, confidence, hypothesis, evidence, overridden, classified_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                run_id, repo, category, confidence, hypothesis, evidence, overridden,
+                initial_category, initial_confidence, classified_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             str(run_id),
             repo,
@@ -175,6 +180,8 @@ def save_classification(
             hypothesis,
             evidence_str,
             1 if overridden else 0,
+            initial_category,
+            initial_confidence if initial_confidence is None else float(initial_confidence),
             classified_at_str
         ))
         conn.commit()
@@ -191,7 +198,8 @@ def get_classification(run_id: str, repo: str, db_path: str = "triage.db") -> Op
     try:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT run_id, repo, category, confidence, hypothesis, evidence, overridden, classified_at
+            SELECT run_id, repo, category, confidence, hypothesis, evidence, overridden,
+                   initial_category, initial_confidence, classified_at
             FROM classifications
             WHERE run_id = ? AND repo = ?
         """, (str(run_id), repo))

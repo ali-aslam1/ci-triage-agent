@@ -53,6 +53,8 @@ def main():
         print("="*50)
         print(f"Category:   {result['category']}")
         print(f"Confidence: {result['confidence']:.2f}")
+        if result.get("initial_category"):
+            print(f"  (Retried from: {result['initial_category']} with confidence {result['initial_confidence']:.2f})")
         print(f"Hypothesis: {result['hypothesis']}")
         print(f"Overridden: {result.get('overridden', False)}")
         print("Evidence lines:")
