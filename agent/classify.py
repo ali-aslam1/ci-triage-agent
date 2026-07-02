@@ -67,7 +67,7 @@ CORRELATION HINT: You will receive a hint produced by deterministic code analysi
 that tells you whether any of the files changed in this commit appear in the failure
 log. Use this as a strong signal but not an absolute rule:
 - If matched files are found in the log → strongly consider Regression or Lint/Syntax.
-- If NO matched files are found in the log → strongly consider Flaky or Environment.
+- If NO matched files are found in the log → consider Flaky or Environment, but do NOT rule out Regression if standard assertion failures are present.
 
 OUTPUT RULES — you MUST respond with ONLY a JSON object, no prose before or after:
 {{

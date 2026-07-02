@@ -1,0 +1,182 @@
+[
+  {
+    "run_id": "30000000000",
+    "repo": "ali-aslam1/inventory-management-system",
+    "true_category": "Flaky",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nE       AssertionError: Expected 5 items, got 4\ntests/test_concurrent_writes.py:45: AssertionError\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": true,
+    "commit_sha": "sha_30000000000"
+  },
+  {
+    "run_id": "30000000001",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nImportError: cannot import name 'SyntaxError' from 'typing' (unknown location)\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000001"
+  },
+  {
+    "run_id": "30000000002",
+    "repo": "ali-aslam1/inventory-management-system",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nnpm ERR! code E404\nnpm ERR! 404 Not Found - GET https://registry.npmjs.org/nonexistent-pkg - Not found\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000002"
+  },
+  {
+    "run_id": "30000000003",
+    "repo": "ali-aslam1/multi-agent-researcher",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nnpm ERR! code E404\nnpm ERR! 404 Not Found - GET https://registry.npmjs.org/nonexistent-pkg - Not found\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000003"
+  },
+  {
+    "run_id": "30000000004",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nERROR: Could not find a version that satisfies the requirement missing-dep==1.0.0 (from versions: none)\nERROR: No matching distribution found for missing-dep==1.0.0\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000004"
+  },
+  {
+    "run_id": "30000000005",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nnpm ERR! code E404\nnpm ERR! 404 Not Found - GET https://registry.npmjs.org/nonexistent-pkg - Not found\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000005"
+  },
+  {
+    "run_id": "30000000006",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Infra",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nError: The runner has received a shutdown signal. This can happen when the runner service is stopped, or a manually started runner is canceled.\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000006"
+  },
+  {
+    "run_id": "30000000007",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nE       AssertionError: assert 404 == 200\nE        +  where 404 = <Response [404]>.status_code\ntests/test_api.py:102: AssertionError\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000007"
+  },
+  {
+    "run_id": "30000000008",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nFAILED tests/test_user_flow.py::test_login - AssertionError: User was not logged in successfully.\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000008"
+  },
+  {
+    "run_id": "30000000009",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nE       AssertionError: assert 404 == 200\nE        +  where 404 = <Response [404]>.status_code\ntests/test_api.py:102: AssertionError\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000009"
+  },
+  {
+    "run_id": "30000000010",
+    "repo": "ali-aslam1/inventory-management-system",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nFAILED tests/test_user_flow.py::test_login - AssertionError: User was not logged in successfully.\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000010"
+  },
+  {
+    "run_id": "30000000011",
+    "repo": "ali-aslam1/multi-agent-researcher",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nnpm ERR! code E404\nnpm ERR! 404 Not Found - GET https://registry.npmjs.org/nonexistent-pkg - Not found\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000011"
+  },
+  {
+    "run_id": "30000000012",
+    "repo": "ali-aslam1/inventory-management-system",
+    "true_category": "Flaky",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nrequests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.example.com', port=443): Max retries exceeded with url: /v1/data (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f9a1b2c>: Failed to establish a new connection: [Errno 111] Connection refused'))\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": true,
+    "commit_sha": "sha_30000000012"
+  },
+  {
+    "run_id": "30000000013",
+    "repo": "ali-aslam1/inventory-management-system",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nValueError: invalid literal for int() with base 10: 'NaN'\n  File \"data_processor.py\", line 12, in parse\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000013"
+  },
+  {
+    "run_id": "30000000014",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nValueError: invalid literal for int() with base 10: 'NaN'\n  File \"data_processor.py\", line 12, in parse\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000014"
+  },
+  {
+    "run_id": "30000000015",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nnpm ERR! code E404\nnpm ERR! 404 Not Found - GET https://registry.npmjs.org/nonexistent-pkg - Not found\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000015"
+  },
+  {
+    "run_id": "30000000016",
+    "repo": "ali-aslam1/pdf-ai-research-assistant",
+    "true_category": "Environment",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nERROR: Could not find a version that satisfies the requirement missing-dep==1.0.0 (from versions: none)\nERROR: No matching distribution found for missing-dep==1.0.0\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000016"
+  },
+  {
+    "run_id": "30000000017",
+    "repo": "ali-aslam1/multi-agent-researcher",
+    "true_category": "Flaky",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nAssertionError: Expected processing time < 2s, but took 2.5s\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": true,
+    "commit_sha": "sha_30000000017"
+  },
+  {
+    "run_id": "30000000018",
+    "repo": "ali-aslam1/multi-agent-researcher",
+    "true_category": "Lint/Syntax",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nsrc/utils.py:22:1: E302 expected 2 blank lines, found 1\nsrc/utils.py:45:80: E501 line too long (82 > 79 characters)\nProcess completed with exit code 1.",
+    "diff_text": "",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000018"
+  },
+  {
+    "run_id": "30000000019",
+    "repo": "ali-aslam1/inventory-management-system",
+    "true_category": "Regression",
+    "log_text": "================================================================================\nLOG FILE: 1_setup.txt\n================================================================================\nStarting build...\n================================================================================\nLOG FILE: 2_test.txt\n================================================================================\nRunning tests...\nValueError: invalid literal for int() with base 10: 'NaN'\n  File \"data_processor.py\", line 12, in parse\nProcess completed with exit code 1.",
+    "diff_text": "--- a/src/main.py\n+++ b/src/main.py\n@@ -10,3 +10,4 @@\n def x():\n-    pass\n+    return True\n",
+    "adj_passed": false,
+    "commit_sha": "sha_30000000019"
+  }
+]
