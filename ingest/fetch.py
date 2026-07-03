@@ -25,13 +25,16 @@ def load_env(force=False):
                     os.environ[key.strip()] = val
     _env_loaded = True
 
-def make_request(url, pat, accept='application/vnd.github+json'):
-    """Make HTTP GET request to GitHub API with Authentication headers."""
-    req = urllib.request.Request(url)
+def make_request(url, pat, accept='application/vnd.github+json', data=None, method=None):
+    """Make HTTP GET or POST request to GitHub API with Authentication headers."""
+    req = urllib.request.Request(url, data=data, method=method)
     req.add_header('Authorization', f'Bearer {pat}')
     req.add_header('Accept', accept)
     req.add_header('X-GitHub-Api-Version', '2022-11-28')
     req.add_header('User-Agent', 'CI-Triage-Agent')
+    
+    if data:
+        req.add_header('Content-Type', 'application/json')
     
     with urllib.request.urlopen(req) as response:
         return response.read(), response.info()

@@ -266,6 +266,13 @@ def classify_run(run_id: str, repo: str, db_path: str = "triage.db") -> dict:
             overridden=True,
             db_path=db_path
         )
+        
+        # Post comment to GitHub commit
+        commit_sha = run.get("commit_sha")
+        if commit_sha:
+            from agent.notify import post_github_comment
+            post_github_comment(repo, commit_sha, result)
+            
         return result
 
     cleaned_log = run["cleaned_log"]
@@ -327,5 +334,10 @@ def classify_run(run_id: str, repo: str, db_path: str = "triage.db") -> dict:
         initial_confidence=result["initial_confidence"],
         db_path=db_path
     )
+
+    # 5. Post comment to GitHub commit
+    if commit_sha:
+        from agent.notify import post_github_comment
+        post_github_comment(repo, commit_sha, result)
 
     return result
