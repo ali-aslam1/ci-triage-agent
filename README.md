@@ -4,8 +4,6 @@ An autonomous AI agent that automatically investigates failing GitHub Actions wo
 
 Built with Python, SQLite, and the Groq API (Llama-3.3-70B).
 
-> **[INSERT LINK TO YOUR VIDEO DEMO OR LINKEDIN POST HERE]**
-
 ---
 
 ## 🧠 Why this exists
