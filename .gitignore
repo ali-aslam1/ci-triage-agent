@@ -112,3 +112,6 @@ temp_repos/
 *.zip
 *.log
 *.db
+
+# Evaluation Outputs
+eval_results.csv
