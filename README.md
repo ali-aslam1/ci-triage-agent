@@ -56,7 +56,7 @@ During evaluation, I discovered that if the agent's deterministic prompt hint st
 
 ### 1. Setup Environment
 ```bash
-git clone https://github.com/your-username/ci-triage-agent.git
+git clone https://github.com/ali-aslam1/ci-triage-agent.git
 cd ci-triage-agent
 python -m venv .venv
 source .venv/bin/activate  # Or .\.venv\Scripts\activate on Windows
