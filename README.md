@@ -16,32 +16,28 @@ This agent automates that triage step. It doesn't just pass logs to an LLM blind
 ```mermaid
 flowchart LR
     subgraph Ingest["📥 Ingest Phase"]
-        direction TB
         A[GitHub Action Fails] --> B[Fetch Logs & Diff]
         B --> C[Clean & Compress]
         C --> D[(SQLite DB)]
     end
 
     subgraph Agent["🤖 Agent Phase"]
-        direction TB
-        E{Flaky Override?}
-        E -->|Yes| F[Tag Flaky · 100%]
+        E{Flaky Override?} -->|Yes| F[Flaky · 100%]
         E -->|No| G[Correlate Diff]
         G --> H[Groq Llama-3]
-        H --> I{Low Confidence\nor Contradiction?}
-        I -->|Yes| J[Fetch Context\n& Retry]
+        H -->|Low Confidence| J[Fetch Context & Retry]
         J --> H
-        I -->|No| K[Final Classification]
+        H -->|Confident| K[Classification]
+        F --> R([Result])
+        K --> R
     end
 
     subgraph Action["📣 Action Phase"]
-        direction TB
-        L[Post Comment\nto GitHub Commit]
+        L[Post to GitHub Commit]
     end
 
     D --> E
-    F --> L
-    K --> L
+    R --> L
 ```
 
 ## 📊 Evaluation & Benchmarking
