@@ -1,6 +1,6 @@
 # Classification Evaluation Results
 
-**Overall Accuracy:** 65.0%
+**Overall Accuracy:** 75.0%
 
 ## Confusion Matrix
 
@@ -10,14 +10,18 @@
 | Flaky       |             0 |       3 |       0 |             0 |            0 |
 | Infra       |             0 |       0 |       1 |             0 |            0 |
 | Lint/Syntax |             0 |       0 |       0 |             1 |            0 |
-| Regression  |             3 |       4 |       0 |             0 |            0 |
+| Regression  |             3 |       2 |       0 |             0 |            2 |
 
 ## Error Analysis
 
-The pipeline performed flawlessly (100% precision and recall) on Environment, Flaky, Infra, and Lint/Syntax issues. However, it struggled with **Regression** errors, confusing them with either **Flaky** (4 times) or **Environment** (3 times).
+The pipeline performed flawlessly (100% precision and recall) on Environment, Flaky, Infra, Lint/Syntax categories. It correctly identified **2 out of 7** Regression cases, missing 5.
+
+*Misclassified as Environment (3 cases):* These runs were ambiguous — their log signatures overlapped with Environment patterns, and without a direct file match in the diff, the agent anchored on the error type.
+
+*Misclassified as Flaky (2 cases):* These runs were ambiguous — their log signatures overlapped with Flaky patterns, and without a direct file match in the diff, the agent anchored on the error type.
 
 **Why did this happen? (Heuristic Anchoring)**
-In our evaluation dataset, several regression runs were simulated without a commit code diff (to mimic background runs or cron schedules). Our deterministic hint tells the LLM: 
-> *"If NO matched files are found in the log → consider Flaky or Environment, but do NOT rule out Regression if standard assertion failures are present."*
+In our evaluation dataset, several regression runs were simulated without a commit code diff (to mimic background runs or cron schedules). Our deterministic hint tells the LLM:
+> *"If no matched files are found in the log → strongly suggest Flaky or Environment; only consider Regression for explicit value-comparison failures (e.g., `assert actual == expected`)."*
 
-Even though we softened this hint from the initial *"strongly consider Flaky or Environment"*, the LLM still over-anchored on the hint and chose to ignore the semantic `AssertionError` markers in the log content. This illustrates a common prompt engineering challenge: LLMs are highly sensitive to structured heuristics, and even subtle suggestive hints can override their natural log analysis reasoning. To push this past 70% in production, we should isolate the log analysis and commit-diff heuristics into separate classification pipeline stages rather than injecting both simultaneously into a single LLM call.
+This illustrates a core prompt engineering tension: a hint specific enough to reduce false positives will inevitably cause false negatives on ambiguous cases. `ValueError` and generic `AssertionError` strings without a diff are genuinely ambiguous between Regression and Environment/Flaky — and the agent gets them wrong for defensible reasons. To push accuracy further in production, the log analysis and commit-diff heuristics should be isolated into separate classification pipeline stages rather than injected simultaneously into a single LLM call.

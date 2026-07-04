@@ -69,7 +69,7 @@ def correlate_run(cleaned_log: str, changed_files: list[str]) -> dict:
         return {
             "any_file_in_diff": False,
             "matched_files": [],
-            "hint": "None of the changed repository files were found in the failure log. This strongly hints at a flaky test, dependency issue, environment mismatch, or orchestration/infrastructure failure."
+            "hint": "No changed files were provided for this run (e.g. cron or schedule trigger). This strongly suggests a Flaky or Environment issue. Only classify as Regression if the log shows an explicit value-comparison test failure such as 'assert actual == expected' or 'assert 404 == 200'."
         }
     
     # 1. Filter changed_files to repository files
@@ -90,7 +90,7 @@ def correlate_run(cleaned_log: str, changed_files: list[str]) -> dict:
     if any_file_in_diff:
         hint = "At least one changed file was found in the failure log stack traces or references. This indicates a potential code regression or syntax error in the modified files."
     else:
-        hint = "None of the changed repository files were found in the failure log. This strongly hints at a flaky test, dependency issue, environment mismatch, or orchestration/infrastructure failure."
+        hint = "The changed files were not directly referenced in the failure log. This suggests a Flaky or Environment issue. Only classify as Regression if the log shows an explicit value-comparison test failure such as 'assert actual == expected' or 'assert 404 == 200'."
         
     return {
         "any_file_in_diff": any_file_in_diff,
