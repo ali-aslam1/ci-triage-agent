@@ -39,9 +39,9 @@ flowchart LR
         L[Post Comment\nto GitHub Commit]
     end
 
-    Ingest --> Agent
-    F --> Action
-    K --> Action
+    D --> E
+    F --> L
+    K --> L
 ```
 
 ## 📊 Evaluation & Benchmarking
