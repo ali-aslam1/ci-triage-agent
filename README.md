@@ -47,13 +47,15 @@ The agent is benchmarked against a custom evaluation dataset of 20 CI failure sc
 
 > **Note:** The evaluation dataset is synthetically generated (LLM-crafted log samples covering each failure category). Results reflect performance on clean, textbook-style logs — real-world accuracy on messier production logs would be lower.
 
-| Category | Precision / Recall | Notes |
-| :--- | :--- | :--- |
-| **Environment** | 100% | Flawlessly detects pip dependency errors. |
-| **Flaky** | 100% | Flawlessly detects timing/async timeouts. |
-| **Infra** | 100% | Accurately identifies YAML/runner misconfigurations. |
-| **Lint/Syntax** | 100% | Accurately catches code formatting violations. |
-| **Regression** | **Partial (2/7)** | Correctly caught explicit `assert X == Y` failures. Missed `ValueError` data-parsing errors (→ Environment) and generic assertions with no diff (→ Flaky). |
+| Category | Recall | Precision | Notes |
+| :--- | :--- | :--- | :--- |
+| **Environment** | 100% (8/8) | 72.7% (8/11) | Accurately detects pip/dependency errors; absorbs ambiguous regressions lacking diffs. |
+| **Flaky** | 100% (3/3) | 60.0% (3/5) | Accurately detects timing/async timeouts; absorbs ambiguous assertions lacking diffs. |
+| **Infra** | 100% (1/1) | 100% (1/1) | Accurately identifies YAML/runner misconfigurations. |
+| **Lint/Syntax** | 100% (1/1) | 100% (1/1) | Accurately catches code formatting and syntax violations. |
+| **Regression** | 28.6% (2/7) | 100% (2/2) | Conservative: high precision when diff correlates, but misses ambiguous regressions without diffs. |
+
+For the complete confusion matrix and per-run breakdown, see [eval_results.md](eval_results.md).
 
 **Engineering Takeaway (Heuristic Anchoring):**
 During evaluation, I found that the agent's diff-correlation hint was either too broad (causing the LLM to ignore clear regression signals) or too restrictive (causing it to misclassify everything without a diff match as Flaky/Environment). The current hint is calibrated to a specific middle ground: it rescues unambiguous value-comparison failures (`assert 404 == 200`) while correctly flagging ambiguous cases (`ValueError` in parsing code, or generic assertions with no diff) as potentially Flaky or Environment — for defensible reasons. The proper architectural fix is to isolate semantic log analysis and commit-diff heuristics into separate pipeline stages — something intentionally left as a known limitation.
@@ -119,8 +121,17 @@ python run_classify.py https://github.com/<owner>/<repo>/actions/runs/<run_id>
 
 ### 4. Run Tests
 ```bash
+pip install pytest
 python -m pytest agent/test_*.py ingest/test_*.py -v
 ```
+
+### 5. Run Evaluation Benchmark (Optional)
+The evaluation harness benchmarks classification accuracy across the 20-scenario dataset. It requires `pandas` and `scikit-learn`:
+```bash
+pip install pandas scikit-learn
+python scripts/run_eval.py
+```
+*Outputs evaluation metrics to `eval_results.csv` and updates `eval_results.md`.*
 
 ## 🗂️ Taxonomy
 The agent strictly categorizes failures into one of five buckets:
@@ -129,3 +140,5 @@ The agent strictly categorizes failures into one of five buckets:
 3. **Environment**: Missing dependencies or python version mismatches (`ModuleNotFoundError`).
 4. **Infra**: GitHub Actions runner misconfigurations or secret permission errors.
 5. **Lint/Syntax**: Pre-execution compilation or formatting errors (e.g., `flake8`, missing colons).
+
+For detailed definitions, code examples, and representative log signatures for each category, see [taxonomy.md](taxonomy.md).
